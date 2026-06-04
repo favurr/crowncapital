@@ -23,6 +23,12 @@ const TrendingCoins = async () => {
 
   if (!trendingCoins) return <TrendingCoinsFallback />;
 
+  if (!Array.isArray(trendingCoins.coins)) {
+    console.warn("TrendingCoins.coins is not an array", trendingCoins.coins);
+    return <TrendingCoinsFallback />;
+  }
+
+
   const columns: DataTableColumn<TrendingCoin>[] = [
   {
     header: "Name",
