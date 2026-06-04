@@ -12,7 +12,8 @@ export async function fetcher<T>(
   endpoint: string,
   params?: QueryParams,
   revalidate = 60,
-): Promise<T> {
+  allowNotFound = false,
+): Promise<T | null> {
   const url = qs.stringifyUrl({
     url: `${BASE_URL}/${endpoint}`,
     query: params,
@@ -28,7 +29,13 @@ export async function fetcher<T>(
   if (!response.ok) {
     const errorBody: CoinGeckoErrorBody = await response.json().catch(() => ({}));
 
-    throw new Error(`API Error: ${response.status}: ${errorBody.error || response.statusText}`);
+    // If caller allows 404 as "not found", return null instead of throwing
+    if (response.status === 404 && allowNotFound) {
+      return null;
+    }
+
+    const message = `API Error: ${response.status}: ${errorBody.error || response.statusText} - ${url}`;
+    throw new Error(message);
   }
 
   return response.json();
