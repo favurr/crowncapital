@@ -1,0 +1,153 @@
+generator client {
+  provider = "prisma-client"
+  output   = "../generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+enum userRole {
+  USER
+  ADMIN
+}
+
+enum TradeStatus {
+  LOSS
+  WIN
+}
+
+enum CryptoPlan {
+  SILVER
+  GOLD
+  DIAMOND
+  ELITE
+  EXCLUSIVE
+}
+
+enum TransactionType {
+  WITHDRAWN
+  TRANSFERRED
+  DEPOSITED
+  PENDING
+}
+
+enum KycStatus {
+  PENDING
+  VERIFIED
+  REJECTED
+}
+
+model User {
+  id                  String          @id
+  name                String
+  email               String
+  emailVerified       Boolean         @default(false)
+  image               String?
+  createdAt           DateTime        @default(now())
+  updatedAt           DateTime        @updatedAt
+  capital             Float           @default(0)
+  accumulativeBalance Float           @default(0)
+  bonus               Float           @default(0)
+  tradeStatus         TradeStatus     @default(LOSS)
+  cryptoPlan          CryptoPlan      @default(SILVER)
+  profit              Float           @default(0)
+  withdrawalPin       String? // 6-digit hashed pin
+  defaultPayoutMethod String? // optional default: BANK | WIRE | CRYPTO | PAYPAL
+  histories           History[]
+  role                userRole        @default(USER)
+  sessions            Session[]
+  accounts            Account[]
+  kyc                 Kyc?
+  paymentMethod       PaymentMethod[]
+
+  @@unique([email])
+  @@map("user")
+}
+
+model Session {
+  id        String   @id
+  expiresAt DateTime
+  token     String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  ipAddress String?
+  userAgent String?
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([token])
+  @@index([userId])
+  @@map("session")
+}
+
+model Account {
+  id                    String    @id
+  accountId             String
+  providerId            String
+  userId                String
+  user                  User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  accessToken           String?
+  refreshToken          String?
+  idToken               String?
+  accessTokenExpiresAt  DateTime?
+  refreshTokenExpiresAt DateTime?
+  scope                 String?
+  password              String?
+  createdAt             DateTime  @default(now())
+  updatedAt             DateTime  @updatedAt
+
+  @@index([userId])
+  @@map("account")
+}
+
+model Verification {
+  id         String   @id
+  identifier String
+  value      String
+  expiresAt  DateTime
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  @@index([identifier])
+  @@map("verification")
+}
+
+model History {
+  id        String          @id @default(cuid())
+  user      User            @relation(fields: [userId], references: [id])
+  userId    String
+  currency  String
+  amount    Float
+  type      TransactionType
+  createdAt DateTime        @default(now())
+}
+
+model Kyc {
+  id           String    @id @default(cuid())
+  user         User      @relation(fields: [userId], references: [id])
+  userId       String    @unique
+  gender       String?
+  countryCode  String?
+  country      String?
+  phoneNumber  String?
+  documentId   String? // e.g. passport number, national ID
+  idFrontImage String? // URL
+  idBackImage  String? // URL)
+  password     String?
+  status       KycStatus @default(PENDING)
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
+}
+
+model PaymentMethod {
+  id        String   @id @default(cuid())
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId    String
+  type      String // BANK, CRYPTO, PAYPAL
+  provider  String? // e.g., BTC, ETH, PayPal
+  details   Json? // JSON object for bank account or crypto address
+  isDefault Boolean  @default(false)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
