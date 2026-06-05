@@ -3,7 +3,7 @@ import DataTable from "../reusables/data-table";
 import Link from "next/link";
 import Image from "next/image";
 import { TrendingDown, TrendingUp } from "lucide-react";
-import { cn } from "@/lib/utils";
+import { cn, formatPercentage } from "@/lib/utils";
 import { TrendingCoinsFallback } from "./fallback";
 
 const TrendingCoins = async () => {
@@ -37,7 +37,7 @@ const TrendingCoins = async () => {
       const item = coin.item;
 
       return (
-        <Link href={`/coins/${item.id}`}>
+        <Link href={`/console/coins/${item.id}`}>
           <Image src={item.large} alt={item.name} width={36} height={36} />
           <p>{item.name}</p>
         </Link>
@@ -57,13 +57,13 @@ const TrendingCoins = async () => {
             isTrendingUp ? "text-green-500" : "text-red-500",
           )}
         >
-          <p>
+            <p className="flex items-center gap-1">
+              {formatPercentage(item.data.price_change_percentage_24h.usd)}
             {isTrendingUp ? (
               <TrendingUp width={16} height={16} />
             ) : (
               <TrendingDown width={16} height={16} />
             )}
-            {Math.abs(item.data.price_change_percentage_24h.usd).toFixed(2)}%
           </p>
         </div>
       );
