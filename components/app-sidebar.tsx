@@ -32,6 +32,10 @@ const data = {
           title: "Market",
           url: "console/market",
         },
+        {
+          title: "Coins",
+          url: "console/coins",
+        },
       ],
     },
     {
