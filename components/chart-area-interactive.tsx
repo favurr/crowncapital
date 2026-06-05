@@ -8,7 +8,7 @@ export const description = "An interactive area chart";
 export async function ChartAreaInteractive() {
   return (
     <>
-      <div className="home-grid">
+      <div className="home-grid flex flex-col gap-6 px-2 md:px-4 md:gap-8">
         <Suspense fallback={<CoinOverviewFallback />}>
           <CoinOverview />
         </Suspense>

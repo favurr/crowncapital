@@ -25,16 +25,28 @@ const CoinsPagination = ({
 
   const pageNumbers = buildPageNumbers(currentPage, totalPages);
   const isLastPage = !hasMorePages || currentPage >= totalPages;
+  const prevPage = currentPage - 1;
+  const nextPage = currentPage + 1;
+  const prevDisabled = currentPage <= 1;
+  const nextDisabled = isLastPage;
 
   return (
     <Pagination id="coins-pagination" className="justify-center">
       <PaginationContent className="pagination-content">
         <PaginationItem className="pagination-control prev">
           <PaginationPrevious
-            onClick={() => currentPage > 1 && handlePageChange(currentPage - 1)}
-            className={
-              currentPage === 1 ? "control-disabled" : "control-button"
-            }
+            href={`/console/coins?page=${prevPage}`}
+            onClick={(e: any) => {
+              if (prevDisabled) {
+                e.preventDefault();
+                return;
+              }
+
+              handlePageChange(prevPage);
+            }}
+            aria-disabled={prevDisabled}
+            tabIndex={prevDisabled ? -1 : undefined}
+            className={prevDisabled ? "control-disabled" : "control-button"}
           />
         </PaginationItem>
 
@@ -45,7 +57,11 @@ const CoinsPagination = ({
                 <PaginationEllipsis />
               ) : (
                 <PaginationLink
-                  onClick={() => handlePageChange(page)}
+                  href={`/console/coins?page=${page}`}
+                  onClick={(e: any) => {
+                    e.preventDefault();
+                    handlePageChange(page);
+                  }}
                   className={cn('page-link', {'page-link-active': currentPage === page})}
                 >
                   {page}
@@ -57,8 +73,18 @@ const CoinsPagination = ({
 
         <PaginationItem className="pagination-control next">
           <PaginationNext
-            onClick={() => !isLastPage && handlePageChange(currentPage + 1)}
-            className={isLastPage ? "control-disabled" : "control-button"}
+            href={`/console/coins?page=${nextPage}`}
+            onClick={(e: any) => {
+              if (nextDisabled) {
+                e.preventDefault();
+                return;
+              }
+
+              handlePageChange(nextPage);
+            }}
+            aria-disabled={nextDisabled}
+            tabIndex={nextDisabled ? -1 : undefined}
+            className={nextDisabled ? "control-disabled" : "control-button"}
           />
         </PaginationItem>
       </PaginationContent>

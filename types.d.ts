@@ -279,12 +279,7 @@ interface DataTableProps<T> {
   bodyCellClassName?: string;
 }
 
-type ButtonSize = 'default' | 'sm' | 'lg' | 'icon' | 'icon-sm' | 'icon-lg';
-
-type PaginationLinkProps = {
-  isActive?: boolean;
-  size?: ButtonSize;
-} & React.ComponentProps<'a'>;
+type ButtonSize = 'default' | 'xs' | 'sm' | 'lg' | 'icon' | 'icon-xs' | 'icon-sm' | 'icon-lg';
 
 interface Pagination {
   currentPage: number;
